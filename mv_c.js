@@ -705,7 +705,9 @@ if (undefined != localStorage){
 
 var rxIsInit = 0;
 var rxInfo = {
-    betValue: 0
+    betValue: 0,
+    _betValue: 0,
+    _betSide: null
 };
 
 function RxSubScribe(){
@@ -746,7 +748,7 @@ function RxResultDices(result, dice1, dice2, dice3) {
 }
 
 function RxBetTaiXiuSuccess(result, currentMoney) {
-    if (result===0) {
+    if (result==0) {
         rxInfo.betValue += rxInfo._betValue;
         if (rxInfo.betSide == 1) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: TÀI-" + rxInfo.betValue;
@@ -758,7 +760,7 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
 }
 
 function RxPrizeTaiXiu(moneyType, totalMoney, currentMoney) {
-    document.getElementById("rxGoldTotal").innerHTML = currentMoney;
+    document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
 
 }
 
