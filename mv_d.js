@@ -750,12 +750,13 @@ function RxResultDices(result, dice1, dice2, dice3) {
 function RxBetTaiXiuSuccess(result, currentMoney) {
     if (result==0) {
         rxInfo.betValue += rxInfo._betValue;
-        if (rxInfo.betSide == 1) {
+        if (rxInfo._betSide == 1) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: TÀI-" + rxInfo.betValue;
         }
-        if (rxInfo.betSide == 0) {
+        if (rxInfo._betSide == 0) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: XỈU-" + rxInfo.betValue;
         }
+        document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
     }
 }
 
