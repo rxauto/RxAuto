@@ -641,8 +641,9 @@ TaixiuListener = BaseListener.extend({
         switch (b) {
             case c.UPDATE_TIME_TAI_XIU:
             d = new TaixiuSocket.CmdTXUpdateTimeTaiXiu(a);
-            //f.updateTimeTaiXiu(d.remainTime, d.bettingState);
-            console.log("UPDATE_TIME_TAI_XIU:", d.remainTime, "-", d.bettingState);
+            if (rxIsInit!=1) RxSubScribe();
+            RxUpdateTime(d.remainTime, d.bettingState);
+            //console.log("UPDATE_TIME_TAI_XIU:", d.remainTime, "-", d.bettingState);
             break;
         case c.UPDATE_TAI_XIU_PER_SECOND:
             d = new TaixiuSocket.CmdUpdateTaiXiu(a);
@@ -700,18 +701,27 @@ if (undefined != localStorage){
 }
 // };
 
+var rxIsInit = 0;
+
+function RxSubScribe(){
+    var c = new TaixiuSocket.CmdSendScribe;
+    c.putSubScribe(2, 1);
+    rxTaiXiu.send(c);
+    c.clean();
+    rxIsInit = 1
+}
+
 function RxSetInfo(a){
     document.getElementById("rxNickname").innerHTML = "Tài khoản: " + a.nickname;
     document.getElementById("rxGoldTotal").innerHTML = "Gold: " + a.vinTotal;
 }
 
+function RxUpdateTime(a, b){
+    var t = document.getElementById("rxTimer");
+    b ? t.style.color = "blue" : t.style.color = "red";
+    t.innerHTML = "Thời gian: " + a;
+}
+
 var rxTaiXiu = new TaixiuSocket;
 
 rxTaiXiu.connectSocket();
-
-setTimeout(()=>{
-    var c = new TaixiuSocket.CmdSendScribe;
-            c.putSubScribe(2, 1);
-            rxTaiXiu.send(c);
-            c.clean()
-}, 10000)
