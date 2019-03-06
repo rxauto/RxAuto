@@ -682,6 +682,8 @@ var rxInfo = {
     betValue: 0,
     _betValue: 0,
     _betSide: null,
+    resultData: "",
+    cauBet: null,
     totalWin: 0,
     totalLoose: 0,
     dayWin: 0,
@@ -750,9 +752,10 @@ function RxInfo(gameId, moneyType, referenceId, remainTime, bettingState, potTai
 }
 
 function RxResultDices(result, dice1, dice2, dice3) {
+    rxInfo.resultData += (result==0 ? "x" : "t")
     var r = (result==0 ? "XỈU" : "TÀI") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 + ")"
     document.getElementById("rxResult").innerHTML = "Kết quả: " + r;
-    RxCheckResult(result, dice1, dice2, dice3)
+    RxCheckResult(result, dice1, dice2, dice3);
 }
 
 function RxCheckResult(result, dice1, dice2, dice3){
@@ -803,6 +806,7 @@ function RxNewGame(referenceId){
     rxInfo.referenceId = referenceId;
     rxInfo._betSide = null;
     rxInfo.betValue = 0;
+    rxInfo.cauBet = null;
     document.getElementById("rxBet").innerHTML = "Đã đặt: --"
     document.getElementById("rxResult").innerHTML = "Kết quả: --"
     guiStatus("...")
@@ -913,7 +917,7 @@ function guiWriteHistory(phien, text, color){
     z.setAttribute("style", "color:" + color + ";display: inline-block")
     k.setAttribute("style", "display: inline-block")
     z.innerHTML = phien;
-    k.innerHTML = "-" + text;
+    k.innerHTML = "-" + text + "-[" + rxInfo.cauBet + "]";
     t.appendChild(z);
     t.appendChild(k);
     m.appendChild(t);
@@ -996,20 +1000,39 @@ function RxAuto() {
         var min=1; 
         var max=10;  
         bSide = parseInt(Math.random() * (+max - +min) + +min)%2; 
+        rxInfo.cauBet = "RANDOM";
     }
 
     if (rxInfo.betMode==1){}
 
     if (rxInfo.betMode==2){
-        RxReadCauTach()
+        var k = RxReadCauTach();
+        rxInfo.cauBet = k[0];
+        bSide = k[1];
     }
 
-    //RxSetBet(bValue, rxInfo.Money, bSide)
+    RxSetBet(bValue, rxInfo.Money, bSide)
 }
 
 function RxReadCauTach() {
-    var t = document.getElementById("rtCauEdit").innerHTML
-    console.log(t);
+    var ret = [];
+    var t = document.getElementById("rtCauEdit").value;
+    var z = t.split(/\n/gm);
+    var re, first, second, rs = null;
+    for (var i = 0; i < z.length; ++i){
+        re = z[i].split("-");
+        if (re.length != 2) {
+            continue;
+        } else {
+            first = re[0].replace(' ', '');
+            second = re[1].replace(' ', '');
+            if (rxInfo.resultData.substr(rxInfo.resultData.length - first.length - 2, rxInfo.resultData.length) == first){
+                ret[0] = "CUSTOM: " + z[i]
+                ret[1] = second == "x" ? 0 : second == "t" ? 1 : null;
+                break;
+            }
+        }
+    }
 }
 
 guiStatus("Đang kết nối đển Server...")
