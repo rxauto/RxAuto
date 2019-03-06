@@ -675,6 +675,23 @@ TaixiuListener = BaseListener.extend({
 });
 // };
 
+var rxIsInit = 0;
+var rxInfo = {
+    Money: 0,
+    initBlance: 0,
+    betValue: 0,
+    _betValue: 0,
+    _betSide: null,
+    totalWin: 0,
+    totalLoose: 0,
+    dayWin: 0,
+    dayLoose: 0,
+    autoMode: 0,
+    betMode: 0,
+    autoSec: 0,
+    autoGapData: 4
+};
+
 if (undefined != localStorage){
     if (undefined != localStorage.current_game_config){
         mv_config = JSON.parse(localStorage.current_game_config);
@@ -692,23 +709,6 @@ if (undefined != localStorage){
     }
 }
 
-
-var rxIsInit = 0;
-var rxInfo = {
-    Money: 0,
-    initBlance: 0,
-    betValue: 0,
-    _betValue: 0,
-    _betSide: null,
-    totalWin: 0,
-    totalLoose: 0,
-    dayWin: 0,
-    dayLoose: 0,
-    autoMode: 0,
-    betMode: 0,
-    autoSec: 0,
-    autoGapData: 4
-};
 
 function RxSubScribe(){
     var c = new TaixiuSocket.CmdSendScribe;
@@ -730,7 +730,7 @@ function RxSubScribe(){
 function RxSetAccountInfo(a) {
     rxInfo.initBlance = rxInfo.Money == 1 ? a.vinTotal : a.xuTotal
     document.getElementById("rxNickname").innerHTML = "Tài khoản: " + a.nickname;
-    document.getElementById("rxGoldTotal").innerHTML = "Gold: " + a.vinTotal;
+    document.getElementById("rxGoldTotal").innerHTML = "Gold: " + rxInfo.initBlance;
 }
 
 function RxUpdateTime(a, b) {
@@ -853,15 +853,18 @@ function guiCauSelectClick() {
     t.style.display = "none";
     s1.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s1.innerHTML
+        m.innerHTML = s1.innerHTML;
+        rxInfo.betMode = 0;
     }
     s2.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s2.innerHTML
+        m.innerHTML = s2.innerHTML;
+        rxInfo.betMode = 1;
     }
     s3.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s3.innerHTML
+        m.innerHTML = s3.innerHTML;
+        rxInfo.betMode = 2;
     }
 }
 
@@ -871,21 +874,29 @@ function guiModeSelectClick() {
     var s1 = document.getElementById("rtModeSelect_10")
     var s2 = document.getElementById("rtModeSelect_11")
     var s3 = document.getElementById("rtModeSelect_12")
-    var s3 = document.getElementById("rtModeSelect_13")
+    var s4 = document.getElementById("rtModeSelect_13")
     var t = document.getElementById("rtCauSelect_1")
     s.style.display = "block";
     t.style.display = "none";
     s1.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s1.innerHTML
+        m.innerHTML = s1.innerHTML;
+        rxInfo.autoMode = 0;
     }
     s2.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s2.innerHTML
+        m.innerHTML = s2.innerHTML;
+        rxInfo.autoMode = 1;
     }
     s3.onclick = function (){
         s.style.display = "none";
-        m.innerHTML = s3.innerHTML
+        m.innerHTML = s3.innerHTML;
+        rxInfo.autoMode = 2;
+    }
+    s4.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s4.innerHTML;
+        rxInfo.autoMode = 3;
     }
 }
 
@@ -924,12 +935,60 @@ function RxAuto() {
                 bValue = l;
             }
         }
+
+        if (rxInfo.autoMode == 1) {
+            bValue = parseInt(rxValue[0]);
+            bValue = bValue * ((rxInfo.dayWin==0||rxInfo.dayWin%rxInfo.autoGapData==0) ? 1 : 0.98 * (rxInfo.dayWin%rxInfo.autoGapData))
+            if (rxInfo.dayLoose!=0) {
+                bValue = parseInt(rxValue[0]);
+                if (rxInfo.dayLoose%rxInfo.autoGapData==0){
+
+                } else {
+                    var l, t = 0;
+                    for (var i = 1; i<=rxInfo.dayLoose+1; ++i){
+                        l = bValue * i + t;
+                        t += l;
+                    }
+                    bValue = l;
+                }
+            }
+        }
+
+        if (rxInfo.autoMode == 2) {
+            bValue = parseInt(rxValue[0]);
+            bValue = bValue * ((rxInfo.dayWin==0||rxInfo.dayWin%rxInfo.autoGapData==0) ? 1 : 0.98 * (rxInfo.dayWin%rxInfo.autoGapData))
+        }
+        if (rxInfo.autoMode == 3) {
+            bValue = parseInt(rxValue[0]);
+            bValue = bValue * ((rxInfo.dayLoose==0||rxInfo.dayLoose%rxInfo.autoGapData==0) ? 1 : 0.98 * (rxInfo.dayLoose%rxInfo.autoGapData))
+        
+        }
+
     } else {
         if (rxInfo.autoMode == 0) {
             if (rxInfo.dayLoose==rxValue.length)
                 bValue = parseInt(rxValue[0])
             else
                 bValue = parseInt(rxValue[rxInfo.dayLoose%rxValue.length]);
+        }
+
+        if (rxInfo.autoMode == 1) {
+            if (rxInfo.dayWin==rxValue.length)
+                bValue = parseInt(rxValue[0])
+            else
+                bValue = parseInt(rxValue[rxInfo.dayWin%rxValue.length]);
+        }
+        if (rxInfo.autoMode == 2) {
+            if (rxInfo.dayWin==rxValue.length)
+                bValue = parseInt(rxValue[0])
+            else
+                bValue = parseInt(rxValue[rxInfo.dayWin%rxValue.length]);
+        }
+        if (rxInfo.autoMode == 3) {
+            if (rxInfo.dayLoose==rxValue.length)
+                bValue = parseInt(rxValue[0])
+            else
+                bValue = parseInt(rxValue[rxInfo.dayWin%rxValue.length]);
         }
     }
 
@@ -938,7 +997,19 @@ function RxAuto() {
         var max=10;  
         bSide = parseInt(Math.random() * (+max - +min) + +min)%2; 
     }
-    RxSetBet(bValue, 0, bSide)
+
+    if (rxInfo.betMode==1){}
+
+    if (rxInfo.betMode==2){
+        RxReadCauTach()
+    }
+
+    //RxSetBet(bValue, rxInfo.Money, bSide)
+}
+
+function RxReadCauTach() {
+    var t = document.getElementById("rtCauEdit").innerHTML
+    console.log(t);
 }
 
 guiStatus("Đang kết nối đển Server...")
