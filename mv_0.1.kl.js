@@ -740,6 +740,7 @@ function RxUpdateTime(a, b) {
     rxInfo.remainTime = a;
     rxInfo.bettingState = b;
     rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
+    rxInfo.autoGapData = parseInt(document.getElementById("stAutoCau").value)
     var t = document.getElementById("rxTimer");
     b ? t.style.color = "blue" : t.style.color = "red";
     t.innerHTML = "Thời gian: " + a;
@@ -790,7 +791,7 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: XỈU-" + rxInfo.betValue;
         }
         document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
-        document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + currentMoney - rxInfo.initBlance
+        document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + (currentMoney - rxInfo.initBlance);
         guiStatus("Đặt cửa thành công")
         return;
     }
@@ -799,7 +800,8 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
 
 function RxPrizeTaiXiu(moneyType, totalMoney, currentMoney) {
     document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
-    document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + currentMoney - rxInfo.initBlance
+    document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + (currentMoney - rxInfo.initBlance);
+    if (currentMoney - rxInfo.initBlance == parseInt(document.getElementById("rtAutoStop").innerHTML)) guiAutOffButtonClick()
 }
 
 function RxNewGame(referenceId){
@@ -1003,7 +1005,11 @@ function RxAuto() {
         rxInfo.cauBet = "RANDOM";
     }
 
-    if (rxInfo.betMode==1){}
+    if (rxInfo.betMode==1){
+        var k = RxReadCauTach();
+        rxInfo.cauBet = k[0];
+        bSide = k[1];
+    }
 
     if (rxInfo.betMode==2){
         var k = RxReadCauTach();
@@ -1014,13 +1020,17 @@ function RxAuto() {
     RxSetBet(bValue, rxInfo.Money, bSide)
 }
 
+function RxReadCauGop() {
+
+}
+
 function RxReadCauTach() {
     var ret = [null, null];
     var t = document.getElementById("rtCauEdit").value;
     var z = t.split(/\n/gm);
     var re, first, second, rs = null;
     for (var i = 0; i < z.length; ++i){
-        re = z[i].split("-");
+        re = z[i].lowwer.toLowerCase().split("-");
         if (re.length != 2) {
             continue;
         } else {
