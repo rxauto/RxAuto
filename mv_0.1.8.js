@@ -703,7 +703,8 @@ var rxInfo = {
     dayLoose: 0,
     autoMode: 0,
     betMode: 0,
-    autoSec: 0
+    autoSec: 0,
+    autoGapData: 4
 };
 
 function RxSubScribe(){
@@ -823,38 +824,36 @@ function guiXiuButtonClick() {
 }
 
 function RxAuto() {
-    var rxSide
+    var bSide, bValue
     var rxValue = document.getElementById("rtAutoValue").value;
-    console.log(rxValue)
     rxValue = rxValue.split(",");
     if (rxValue.length == 1) {
-        rxValue == parseInt(rxValue[0]);
+        bValue = parseInt(rxValue[0]);
         if (rxInfo.autoMode == 0) {
-            if (rxInfo.dayLoose%rxInfo.rxAutoGapData!=0){
+            if ((rxInfo.dayLoose%rxInfo.autoGapData)!=0){
                 var l, t
                 for (var i = 1; i<=rxInfo.dayLoose+1; ++i){
-                    l = rxValue * i + t;
+                    l = bValue * i + t;
                     t += l;
                 }
-                rxValue = l;
+                bValue = l;
             }
         }
     } else {
         if (rxInfo.autoMode == 0) {
             if (rxInfo.dayLoose==rxValue.length)
-                rxValue = parseInt(rxValue[0])
+                bValue = parseInt(rxValue[0])
             else
-                rxValue = parseInt(rxValue[rxInfo.dayLoose%rxValue.length]);
+                bValue = parseInt(rxValue[rxInfo.dayLoose%rxValue.length]);
         }
     }
 
     if (rxInfo.betMode==0){
         var min=1; 
         var max=10;  
-        rxSide = parseInt(Math.random() * (+max - +min) + +min)%2; 
+        bSide = parseInt(Math.random() * (+max - +min) + +min)%2; 
     }
-    
-    RxSetBet(rxValue, 0, rxSide)
+    RxSetBet(bValue, 0, bSide)
 }
 
 var rxTaiXiu = new TaixiuSocket;
