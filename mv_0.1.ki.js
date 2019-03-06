@@ -1015,7 +1015,7 @@ function RxAuto() {
 }
 
 function RxReadCauTach() {
-    var ret = [];
+    var ret = [null, null];
     var t = document.getElementById("rtCauEdit").value;
     var z = t.split(/\n/gm);
     var re, first, second, rs = null;
@@ -1033,6 +1033,7 @@ function RxReadCauTach() {
             }
         }
     }
+    return ret;
 }
 
 guiStatus("Đang kết nối đển Server...")
