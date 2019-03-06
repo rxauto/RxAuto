@@ -849,9 +849,9 @@ function RxAuto() {
     }
 
     if (rxInfo.betMode==0){
-        var min=0; 
-        var max=1;  
-        rxSide = Math.random() * (+max - +min) + +min; 
+        var min=1; 
+        var max=10;  
+        rxSide = parseInt(Math.random() * (+max - +min) + +min)%2; 
     }
     
     RxSetBet(rxValue, 0, rxSide)
