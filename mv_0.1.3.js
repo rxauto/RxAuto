@@ -1,14 +1,3 @@
-//Import library
-// var vm = require("vm");
-// var fs = require("fs");
-
-// var _load = function(path, context) {
-//     var data = fs.readFileSync(path);
-//     vm.runInThisContext(data, path);
-// }
-// _load("./cocos2d-js-v3.13-lite.js")
-//
-
 //SR Base
 function Jacob__Codec__Base64__decode(a) {
     var b = [], c, d, e, f, g, h = 0;
@@ -663,17 +652,17 @@ TaixiuListener = BaseListener.extend({
             break;
         case c.UPDATE_PRIZE_TAI_XIU:
             d = new TaixiuSocket.CmdUpdatePrizeTaiXiu(a);
-            //e && e.responsePrizeTaiXiu(d.moneyType, d.totalMoney, d.currentMoney);
+            RxPrizeTaiXiu(d.moneyType, d.totalMoney, d.currentMoney);
             console.log("UPDATE_PRIZE_TAI_XIU:", "moneyType -", d.moneyType, "totalMoney -", d.totalMoney, "currentMoney -", d.currentMoney);
             break;
         case c.BET_TAI_XIU:
             d = new TaixiuSocket.CmdBetTaiXiu(a);
-            //e && e.responseBetTaiXiuSuccess(d.result, d.currentMoney);
+            RxBetTaiXiuSuccess(d.result, d.currentMoney);
             console.log("BET_TAI_XIU:", "result -", d.result, "currentMoney -", d.currentMoney);
             break;
         case c.START_NEW_GAME_TAI_XIU:
             d = new TaixiuSocket.CmdStartNewGameTaiXiu(a);
-            RxInfo(0, 0, d.referenceId, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            RxNewGame(d.referenceId);
             //console.log("START_NEW_GAME_TAI_XIU:", "referenceId-", d.referenceId)
             break;
         case c.LICH_SU_PHIEN_TAI_XIU:
@@ -704,13 +693,30 @@ if (undefined != localStorage){
 // };
 
 var rxIsInit = 0;
+var rxInfo = {
+    betValue: 0,
+    _betValue: 0,
+    _betSide: null,
+    totalWin: 0,
+    totalLoose: 0,
+    dayWin: 0,
+    dayLoose: 0,
+    autoMode: 0,
+    betMode: 0,
+    autoSec: 0
+};
 
 function RxSubScribe(){
     var c = new TaixiuSocket.CmdSendScribe;
     c.putSubScribe(2, 1);
     rxTaiXiu.send(c);
     c.clean();
-    rxIsInit = 1
+    rxIsInit = 1;
+
+    document.getElementById("rtTai").addEventListener("click", guiTaiButtonClick);
+    document.getElementById("rtXiu").addEventListener("click", guiXiuButtonClick);
+    document.getElementById("rtAutoOn").addEventListener("click", guiAutOnButtonClick);
+    document.getElementById("rtAutoOff").addEventListener("click", guiAutOffButtonClick);
 }
 
 function RxSetAccountInfo(a) {
@@ -719,19 +725,133 @@ function RxSetAccountInfo(a) {
 }
 
 function RxUpdateTime(a, b) {
+    if (rxInfo.isAuto&&a==rxInfo.autoSec) RxAuto()
+    rxInfo.remainTime = a;
+    rxInfo.bettingState = b;
     var t = document.getElementById("rxTimer");
     b ? t.style.color = "blue" : t.style.color = "red";
     t.innerHTML = "Thời gian: " + a;
 }
 
 function RxInfo(gameId, moneyType, referenceId, remainTime, bettingState, potTai, potXiu, betTai, betXiu, dice1, dice2, dice3, remainTimeRutLoc) {
+    rxInfo.referenceId = referenceId;
     document.getElementById("rxPhien").innerHTML = "Phiên: " + referenceId;
-    if (bettingState == false) RxResultDices((dice1 + dice2 + dice3) < 11 ? 0 : 1, dice1, dice2, dice3)
+    if (bettingState === false) RxResultDices((dice1 + dice2 + dice3) < 11 ? 0 : 1, dice1, dice2, dice3)
 }
 
-function RxResultDices(result, dice1, dice2, dice3){
+function RxResultDices(result, dice1, dice2, dice3) {
     var r = (result==0 ? "XỈU" : "TÀI") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 + ")"
     document.getElementById("rxResult").innerHTML = "Kết quả: " + r;
+    rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
+    RxCheckResult(result)
+}
+
+function RxCheckResult(result){
+    if (rxInfo._betSide!=null){
+        if (result==rxInfo._betSide) {
+            rxInfo.totalWin += 1;
+            rxInfo.dayWin += 1;
+            rxInfo.dayLoose = 0;
+        } else {
+            rxInfo.totalLoose += 1;
+            rxInfo.dayLoose += 1;
+            rxInfo.dayWin = 0;
+        }
+    }
+    document.getElementById("rxWL").innerHTML = "W/L: " + rxInfo.totalWin + "/" + rxInfo.totalLoose
+    document.getElementById("rtAutoWin").innerHTML = rxInfo.dayWin;
+    document.getElementById("rtAutoWin").innerHTML = rxInfo.dayLoose;
+}
+
+function RxBetTaiXiuSuccess(result, currentMoney) {
+    if (result==0) {
+        rxInfo.betValue += rxInfo._betValue;
+        if (rxInfo._betSide == 1) {
+            document.getElementById("rxBet").innerHTML = "Đã đặt: TÀI-" + rxInfo.betValue;
+        }
+        if (rxInfo._betSide == 0) {
+            document.getElementById("rxBet").innerHTML = "Đã đặt: XỈU-" + rxInfo.betValue;
+        }
+        document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
+    }
+}
+
+function RxPrizeTaiXiu(moneyType, totalMoney, currentMoney) {
+    document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
+}
+
+function RxNewGame(referenceId){
+    rxInfo.referenceId = referenceId;
+    rxInfo._betSide = null;
+    rxInfo.betValue = 0;
+    document.getElementById("rxBet").innerHTML = "Đã đặt: --"
+    document.getElementById("rxResult").innerHTML = "Kết quả: --"
+}
+
+function RxSetBet(betValue, moneyType, betSide) {
+    //moneyType: 1 - VIN | 0 - XU
+    //betSide: 1 - TÀI | 0 - XỈU
+    if (rxInfo.bettingState !== true) return;
+    var a = new TaixiuSocket.CmdSendBetTaiXiu;
+    a.putBetTaiXiu(1, rxInfo.referenceId, betValue, moneyType, betSide, rxInfo.remainTime);
+    rxTaiXiu.send(a);
+    a.clean();
+    rxInfo._betValue = betValue;
+    rxInfo._betSide = betSide;
+}
+
+function guiAutOnButtonClick() {
+    document.getElementById("rtAutoOn").className = "btn w-100 btn-primary"
+    document.getElementById("rtAutoOff").className = "btn btn-light w-100";
+    rxInfo.isAuto = true;
+}
+
+function guiAutOffButtonClick() {
+    document.getElementById("rtAutoOff").className = "btn w-100 btn-primary"
+    document.getElementById("rtAutoOn").className = "btn btn-light w-100";
+    rxInfo.isAuto = false;
+}
+
+function guiTaiButtonClick() {
+    var betValue = parseInt(document.getElementById("rtMoney").value);
+    RxSetBet(betValue, 0, 1)
+}
+
+function guiXiuButtonClick() {
+    var betValue = parseInt(document.getElementById("rtMoney").value);
+    RxSetBet(betValue, 0, 0);
+}
+
+function RxAuto() {
+    var rxSide
+    var rxValue = document.getElementById("rtAutoValue").value;
+    rxValue = rxValue.split(",");
+    if (rxValue.length == 1) {
+        rxValue == parseInt(rxValue[0]);
+        if (rxInfo.autoMode == 0) {
+            if (rxInfo.dayLoose%rxInfo.rxAutoGapData!=0){
+                var l, t
+                for (var i = 1; i<=rxInfo.dayLoose+1; ++i){
+                    l = rxValue * i + t;
+                    t += l;
+                }
+                rxValue = l;
+            }
+        }
+    } else {
+        if (rxInfo.autoMode == 0) {
+            if (rxInfo.dayLoose==rxValue.length)
+                rxValue = parseInt(rxValue[0])
+            else
+                rxValue = parseInt(rxValue[rxInfo.dayLoose%rxValue.length]);
+        }
+    }
+
+    if (rxInfo.betMode==0){
+        rxSide = Math.random()%2;
+    }
+
+    RxSetBet(rxValue, 0, rxSide)
 }
 
 var rxTaiXiu = new TaixiuSocket;
