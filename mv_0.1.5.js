@@ -736,13 +736,13 @@ function RxUpdateTime(a, b) {
 function RxInfo(gameId, moneyType, referenceId, remainTime, bettingState, potTai, potXiu, betTai, betXiu, dice1, dice2, dice3, remainTimeRutLoc) {
     rxInfo.referenceId = referenceId;
     document.getElementById("rxPhien").innerHTML = "Phiên: " + referenceId;
+    rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
     if (bettingState === false) RxResultDices((dice1 + dice2 + dice3) < 11 ? 0 : 1, dice1, dice2, dice3)
 }
 
 function RxResultDices(result, dice1, dice2, dice3) {
     var r = (result==0 ? "XỈU" : "TÀI") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 + ")"
     document.getElementById("rxResult").innerHTML = "Kết quả: " + r;
-    rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
     RxCheckResult(result)
 }
 
@@ -760,7 +760,7 @@ function RxCheckResult(result){
     }
     document.getElementById("rxWL").innerHTML = "W/L: " + rxInfo.totalWin + "/" + rxInfo.totalLoose
     document.getElementById("rtAutoWin").innerHTML = "Dây thắng: " + rxInfo.dayWin;
-    document.getElementById("rtAutoWin").innerHTML = "Dây thua: " + rxInfo.dayLoose;
+    document.getElementById("rtAutoLoose").innerHTML = "Dây thua: " + rxInfo.dayLoose;
 }
 
 function RxBetTaiXiuSuccess(result, currentMoney) {
@@ -825,7 +825,7 @@ function guiXiuButtonClick() {
 function RxAuto() {
     var rxSide
     var rxValue = document.getElementById("rtAutoValue").value;
-    console(rxValue)
+    console.log(rxValue)
     rxValue = rxValue.split(",");
     if (rxValue.length == 1) {
         rxValue == parseInt(rxValue[0]);
@@ -849,7 +849,9 @@ function RxAuto() {
     }
 
     if (rxInfo.betMode==0){
-        rxSide = Math.random()%2;
+        var min=0; 
+        var max=1;  
+        rxSide = Math.random() * (+max - +min) + +min; 
     }
     
     RxSetBet(rxValue, 0, rxSide)
