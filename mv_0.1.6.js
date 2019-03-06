@@ -728,6 +728,7 @@ function RxUpdateTime(a, b) {
     if (rxInfo.isAuto&&a==rxInfo.autoSec) RxAuto()
     rxInfo.remainTime = a;
     rxInfo.bettingState = b;
+    rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
     var t = document.getElementById("rxTimer");
     b ? t.style.color = "blue" : t.style.color = "red";
     t.innerHTML = "Thời gian: " + a;
@@ -736,7 +737,6 @@ function RxUpdateTime(a, b) {
 function RxInfo(gameId, moneyType, referenceId, remainTime, bettingState, potTai, potXiu, betTai, betXiu, dice1, dice2, dice3, remainTimeRutLoc) {
     rxInfo.referenceId = referenceId;
     document.getElementById("rxPhien").innerHTML = "Phiên: " + referenceId;
-    rxInfo.autoSec = parseInt(document.getElementById("rtAutoSec").value);
     if (bettingState === false) RxResultDices((dice1 + dice2 + dice3) < 11 ? 0 : 1, dice1, dice2, dice3)
 }
 
