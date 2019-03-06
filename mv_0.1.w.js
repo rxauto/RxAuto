@@ -718,6 +718,8 @@ function RxSubScribe(){
     document.getElementById("rtXiu").addEventListener("click", guiXiuButtonClick);
     document.getElementById("rtAutoOn").addEventListener("click", guiAutOnButtonClick);
     document.getElementById("rtAutoOff").addEventListener("click", guiAutOffButtonClick);
+
+    guiStatus("Kết nối thành công")
 }
 
 function RxSetAccountInfo(a) {
@@ -750,7 +752,7 @@ function RxResultDices(result, dice1, dice2, dice3) {
 function RxCheckResult(result, dice1, dice2, dice3){
     var x = (rxInfo._betSide == 1 ? "TÀI" : "XỈU") + "-" + rxInfo.betValue
     var t = (result == 1 ? "TÀI" : "XỈU") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 +")"
-    x = x + "||" + t;
+    x = x + " || " + t;
     if (rxInfo._betSide!=null){
         if (result==rxInfo._betSide) {
             rxInfo.totalWin += 1;
@@ -779,7 +781,10 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: XỈU-" + rxInfo.betValue;
         }
         document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
+        guiStatus("Đặt cửa thành công")
+        return;
     }
+    guiStatus("Đặt cửa thất bại")
 }
 
 function RxPrizeTaiXiu(moneyType, totalMoney, currentMoney) {
@@ -792,6 +797,7 @@ function RxNewGame(referenceId){
     rxInfo.betValue = 0;
     document.getElementById("rxBet").innerHTML = "Đã đặt: --"
     document.getElementById("rxResult").innerHTML = "Kết quả: --"
+    guiStatus("...")
 }
 
 function RxSetBet(betValue, moneyType, betSide) {
@@ -841,7 +847,7 @@ function guiWriteHistory(phien, text, color){
     z.setAttribute("style", "color:" + color + ";display: inline-block")
     k.setAttribute("style", "display: inline-block")
     z.innerHTML = phien;
-    k.innerHTML = text;
+    k.innerHTML = "-" + text;
     t.appendChild(z);
     t.appendChild(k);
     m.appendChild(t);
@@ -879,6 +885,8 @@ function RxAuto() {
     }
     RxSetBet(bValue, 0, bSide)
 }
+
+guiStatus("Đang kết nối đển Server...")
 
 var rxTaiXiu = new TaixiuSocket;
 
