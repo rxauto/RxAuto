@@ -831,7 +831,7 @@ function RxAuto() {
         bValue = parseInt(rxValue[0]);
         if (rxInfo.autoMode == 0) {
             if ((rxInfo.dayLoose%rxInfo.autoGapData)!=0){
-                var l, t
+                var l, t = 0;
                 for (var i = 1; i<=rxInfo.dayLoose+1; ++i){
                     l = bValue * i + t;
                     t += l;
