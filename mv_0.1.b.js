@@ -841,6 +841,7 @@ function guiWriteHistory(phien, text, color){
     z.setAttribute("style", "color:" + color + ";display: inline-block")
     k.setAttribute("style", "display: inline-block")
     z.innerHTML = phien;
+    k.innerHTML = text;
     t.appendChild(z);
     t.appendChild(k);
     m.appendChild(t);
