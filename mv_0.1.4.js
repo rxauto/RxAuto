@@ -759,8 +759,8 @@ function RxCheckResult(result){
         }
     }
     document.getElementById("rxWL").innerHTML = "W/L: " + rxInfo.totalWin + "/" + rxInfo.totalLoose
-    document.getElementById("rtAutoWin").innerHTML = rxInfo.dayWin;
-    document.getElementById("rtAutoWin").innerHTML = rxInfo.dayLoose;
+    document.getElementById("rtAutoWin").innerHTML = "Dây thắng: " + rxInfo.dayWin;
+    document.getElementById("rtAutoWin").innerHTML = "Dây thua: " + rxInfo.dayLoose;
 }
 
 function RxBetTaiXiuSuccess(result, currentMoney) {
@@ -825,6 +825,7 @@ function guiXiuButtonClick() {
 function RxAuto() {
     var rxSide
     var rxValue = document.getElementById("rtAutoValue").value;
+    console(rxValue)
     rxValue = rxValue.split(",");
     if (rxValue.length == 1) {
         rxValue == parseInt(rxValue[0]);
@@ -850,7 +851,7 @@ function RxAuto() {
     if (rxInfo.betMode==0){
         rxSide = Math.random()%2;
     }
-
+    
     RxSetBet(rxValue, 0, rxSide)
 }
 
