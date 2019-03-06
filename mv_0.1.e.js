@@ -673,6 +673,7 @@ TaixiuListener = BaseListener.extend({
         null != d && d.clean()
     }
 });
+// };
 
 if (undefined != localStorage){
     if (undefined != localStorage.current_game_config){
@@ -690,10 +691,12 @@ if (undefined != localStorage){
         RxSetAccountInfo(mv_info);
     }
 }
-// };
+
 
 var rxIsInit = 0;
 var rxInfo = {
+    Money: 0,
+    initBlance: 0,
     betValue: 0,
     _betValue: 0,
     _betSide: null,
@@ -718,11 +721,14 @@ function RxSubScribe(){
     document.getElementById("rtXiu").addEventListener("click", guiXiuButtonClick);
     document.getElementById("rtAutoOn").addEventListener("click", guiAutOnButtonClick);
     document.getElementById("rtAutoOff").addEventListener("click", guiAutOffButtonClick);
+    document.getElementById("rtCauSelect").addEventListener("click", guiCauSelectClick);
+    document.getElementById("rtModeSelect").addEventListener("click", guiModeSelectClick);
 
     guiStatus("Kết nối thành công")
 }
 
 function RxSetAccountInfo(a) {
+    rxInfo.initBlance = rxInfo.Money == 1 ? a.vinTotal : a.xuTotal
     document.getElementById("rxNickname").innerHTML = "Tài khoản: " + a.nickname;
     document.getElementById("rxGoldTotal").innerHTML = "Gold: " + a.vinTotal;
 }
@@ -781,6 +787,7 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
             document.getElementById("rxBet").innerHTML = "Đã đặt: XỈU-" + rxInfo.betValue;
         }
         document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
+        document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + currentMoney - rxInfo.initBlance
         guiStatus("Đặt cửa thành công")
         return;
     }
@@ -789,6 +796,7 @@ function RxBetTaiXiuSuccess(result, currentMoney) {
 
 function RxPrizeTaiXiu(moneyType, totalMoney, currentMoney) {
     document.getElementById("rxGoldTotal").innerHTML = "Gold: " + currentMoney;
+    document.getElementById("rxGoldz").innerHTML = "Gold~: " + (currentMoney >= rxInfo.initBlance ? "+" : "-") + currentMoney - rxInfo.initBlance
 }
 
 function RxNewGame(referenceId){
@@ -832,6 +840,53 @@ function guiTaiButtonClick() {
 function guiXiuButtonClick() {
     var betValue = parseInt(document.getElementById("rtMoney").value);
     RxSetBet(betValue, 0, 0);
+}
+
+function guiCauSelectClick() {
+    var m = document.getElementById("rtCauSelect")
+    var s = document.getElementById("rtCauSelect_1")
+    var s1 = document.getElementById("rtCauSelect_10")
+    var s2 = document.getElementById("rtCauSelect_11")
+    var s3 = document.getElementById("rtCauSelect_12")
+    var t = document.getElementById("rtModeSelect_1")
+    s.style.display = "block";
+    t.style.display = "none";
+    s1.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s1.innerHTML
+    }
+    s2.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s2.innerHTML
+    }
+    s3.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s3.innerHTML
+    }
+}
+
+function guiModeSelectClick() {
+    var m = document.getElementById("rtModeSelect")
+    var s = document.getElementById("rtModeSelect_1")
+    var s1 = document.getElementById("rtModeSelect_10")
+    var s2 = document.getElementById("rtModeSelect_11")
+    var s3 = document.getElementById("rtModeSelect_12")
+    var s3 = document.getElementById("rtModeSelect_13")
+    var t = document.getElementById("rtCauSelect_1")
+    s.style.display = "block";
+    t.style.display = "none";
+    s1.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s1.innerHTML
+    }
+    s2.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s2.innerHTML
+    }
+    s3.onclick = function (){
+        s.style.display = "none";
+        m.innerHTML = s3.innerHTML
+    }
 }
 
 function guiStatus(text){
