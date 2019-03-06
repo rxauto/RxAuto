@@ -1047,13 +1047,13 @@ function RxReadCauTach() {
     var z = t.split(/\n/gm);
     var re, first, second, rs = null;
     for (var i = 0; i < z.length; ++i){
-        re = z[i].lowwer.toLocaleLowerCase().split("-");
+        re = z[i].toLocaleLowerCase().split("-");
         if (re.length != 2) {
             continue;
         } else {
             first = re[0].replace(' ', '');
             second = re[1].replace(' ', '');
-            if (rxInfo.resultData.substr(rxInfo.resultData.length - first.length - 2, rxInfo.resultData.length) == first){
+            if (rxInfo.resultData.substr(rxInfo.resultData.length - first.length, rxInfo.resultData.length) == first){
                 ret[0] = "CUSTOM: " + z[i]
                 ret[1] = second == "x" ? 0 : second == "t" ? 1 : null;
                 break;
