@@ -744,19 +744,24 @@ function RxInfo(gameId, moneyType, referenceId, remainTime, bettingState, potTai
 function RxResultDices(result, dice1, dice2, dice3) {
     var r = (result==0 ? "XỈU" : "TÀI") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 + ")"
     document.getElementById("rxResult").innerHTML = "Kết quả: " + r;
-    RxCheckResult(result)
+    RxCheckResult(result, dice1, dice2, dice3)
 }
 
-function RxCheckResult(result){
+function RxCheckResult(result, dice1, dice2, dice3){
+    var x = (rxInfo._betSide == 1 ? "TÀI" : "XỈU") + "-" + rxInfo.betValue
+    var t = (result == 1 ? "TÀI" : "XỈU") + " " + (dice1 + dice2 + dice3) + " (" + dice1 + "-" + dice2 + "-" + dice3 +")"
+    x = x + "||" + t;
     if (rxInfo._betSide!=null){
         if (result==rxInfo._betSide) {
             rxInfo.totalWin += 1;
             rxInfo.dayWin += 1;
             rxInfo.dayLoose = 0;
+            guiWriteHistory("#" + rxInfo.referenceId, x, "green")
         } else {
             rxInfo.totalLoose += 1;
             rxInfo.dayLoose += 1;
             rxInfo.dayWin = 0;
+            guiWriteHistory("#" + rxInfo.referenceId, x, "red")
         }
     }
     document.getElementById("rxWL").innerHTML = "W/L: " + rxInfo.totalWin + "/" + rxInfo.totalLoose
@@ -821,6 +826,24 @@ function guiTaiButtonClick() {
 function guiXiuButtonClick() {
     var betValue = parseInt(document.getElementById("rtMoney").value);
     RxSetBet(betValue, 0, 0);
+}
+
+function guiStatus(text){
+    document.getElementById("rxStatus").innerHTML = text
+}
+
+function guiWriteHistory(phien, text, color){
+    var m = document.getElementById("rxHistory");
+    var t = document.createElement("div");
+    var z = document.createElement("div");
+    var k = document.createElement("div");
+    t.setAttribute("style", "font-family:sans-serif;font-size:14px")
+    z.setAttribute("style", "color:" + color + ";display: inline-block")
+    k.setAttribute("style", "display: inline-block")
+    z.innerHTML = phien;
+    t.appendChild(z);
+    t.appendChild(k);
+    m.appendChild(t);
 }
 
 function RxAuto() {
